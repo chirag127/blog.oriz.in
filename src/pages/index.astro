@@ -1,0 +1,110 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import PostCard from "../components/PostCard.astro";
+import SearchModal from "../components/SearchModal.astro";
+import CommandPalette from "../components/CommandPalette.astro";
+import Newsletter from "../components/Newsletter.astro";
+import { SITE_CONFIG } from "../config";
+import { getCollection } from "astro:content";
+
+const allPosts = await getCollection("blog", ({ data }) => !data.draft);
+const sortedPosts = allPosts.sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+);
+const latestPosts = sortedPosts.slice(0, 6);
+
+const allTags = [...new Set(allPosts.flatMap((p) => p.data.tags))].slice(0, 12);
+---
+
+<BaseLayout title="Home">
+  <section class="max-w-6xl mx-auto px-4 sm:px-6 pt-20 pb-16">
+    <div class="max-w-3xl animate-fade-in">
+      <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-accent/10 text-accent-light text-sm mb-6">
+        <span class="w-1.5 h-1.5 rounded-full bg-accent animate-pulse"></span>
+        Software Engineer · Full Stack · Distributed Systems
+      </div>
+
+      <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.1] mb-6">
+        Hi, I'm Chirag Singhal
+      </h1>
+
+      <p class="text-2xl sm:text-3xl gradient-text font-bold mb-8">
+        I build things for the web.
+      </p>
+
+      <p class="text-lg text-text-secondary leading-relaxed max-w-xl mb-8">
+        Software Engineer at TCS. Building scalable backends, AI-powered tools, and cloud-native applications. Creator of Oriz.in.
+      </p>
+
+      <div class="flex flex-wrap gap-3">
+        <a href="/blog" class="btn-primary">
+          Read the blog
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+          </svg>
+        </a>
+        <a href="/about" class="btn-ghost border border-border">
+          About Me
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="max-w-6xl mx-auto px-4 sm:px-6 pb-16">
+    <div class="flex items-center justify-between mb-8">
+      <h2 class="text-2xl font-bold tracking-tight">Latest Posts</h2>
+      <a href="/blog" class="text-sm text-accent-light hover:underline">View all →</a>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {latestPosts.map((post, index) => (
+        <div class="animate-slide-up" style={`animation-delay: ${index * 80}ms`}>
+          <PostCard post={post} />
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section class="max-w-6xl mx-auto px-4 sm:px-6 pb-16">
+    <div class="glass-card p-8">
+      <h2 class="text-xl font-bold mb-4">Browse by Tags</h2>
+      <div class="flex flex-wrap gap-2">
+        {allTags.map((tag) => (
+          <a
+            href={`/tags/${tag.toLowerCase().replace(/\s+/g, "-")}`}
+            class="px-3 py-1.5 text-sm rounded-lg bg-bg-tertiary text-text-secondary hover:text-text-primary hover:bg-bg-card transition-all border border-border"
+          >
+            #{tag}
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="max-w-6xl mx-auto px-4 sm:px-6 pb-16">
+    <div class="glass-card gradient-border p-8 text-center">
+      <h2 class="text-2xl font-bold mb-3">Why Blog Hunter?</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-8">
+        <div>
+          <div class="text-3xl font-bold gradient-text mb-2">₹0</div>
+          <p class="text-sm text-text-tertiary">Forever free. No hosting costs.</p>
+        </div>
+        <div>
+          <div class="text-3xl font-bold gradient-text mb-2">100</div>
+          <p class="text-sm text-text-tertiary">Lighthouse score target.</p>
+        </div>
+        <div>
+          <div class="text-3xl font-bold gradient-text mb-2">∞</div>
+          <p class="text-sm text-text-tertiary">Scales globally via CDN.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="max-w-6xl mx-auto px-4 sm:px-6 pb-16">
+    <Newsletter />
+  </section>
+
+  <SearchModal />
+  <CommandPalette />
+</BaseLayout>

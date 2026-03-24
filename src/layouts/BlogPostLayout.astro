@@ -1,0 +1,148 @@
+---
+import BaseLayout from "./BaseLayout.astro";
+import TableOfContents from "../components/TableOfContents.astro";
+import ShareButtons from "../components/ShareButtons.astro";
+import GiscusComments from "../components/GiscusComments.astro";
+import BookmarkButton from "../components/BookmarkButton.astro";
+import RecentlyViewed from "../components/RecentlyViewed.astro";
+import Recommendations from "../components/Recommendations.astro";
+import { getCollection } from "astro:content";
+
+interface Props {
+  title: string;
+  description: string;
+  pubDate: Date;
+  updatedDate?: Date;
+  heroImage?: string;
+  tags: string[];
+  category: string;
+  readingTime?: string;
+  headings: Array<{ depth: number; slug: string; text: string }>;
+  slug: string;
+}
+
+const {
+  title,
+  description,
+  pubDate,
+  updatedDate,
+  heroImage,
+  tags,
+  category,
+  readingTime,
+  headings,
+} = Astro.props;
+
+const { slug } = Astro.props;
+const allPosts = await getCollection("blog", ({ data }) => !data.draft);
+
+const formattedDate = pubDate.toLocaleDateString("en-US", {
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+});
+
+const formattedUpdatedDate = updatedDate?.toLocaleDateString("en-US", {
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+});
+---
+
+<BaseLayout title={title} description={description} ogImage={heroImage}>
+  <article class="max-w-4xl mx-auto px-4 sm:px-6 py-12">
+    <header class="mb-10 animate-fade-in">
+      <div class="flex items-center gap-3 mb-4 text-sm text-text-tertiary">
+        <a
+          href={`/categories/${category.toLowerCase().replace(/[\s\/]+/g, "-")}`}
+          class="px-2.5 py-1 rounded-md bg-accent/10 text-accent-light hover:bg-accent/20 transition-colors"
+        >
+          {category}
+        </a>
+        <time datetime={pubDate.toISOString()}>{formattedDate}</time>
+        {readingTime && <span>· {readingTime}</span>}
+      </div>
+
+      <h1
+        class="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight leading-tight mb-4"
+      >
+        {title}
+      </h1>
+
+      <p class="text-lg text-text-secondary leading-relaxed max-w-2xl">
+        {description}
+      </p>
+
+      {
+        updatedDate && (
+          <p class="text-sm text-text-tertiary mt-2">
+            Last updated: {formattedUpdatedDate}
+          </p>
+        )
+      }
+    </header>
+
+    {
+      heroImage && (
+        <div class="mb-10 rounded-2xl overflow-hidden border border-border">
+          <img
+            src={heroImage}
+            alt={title}
+            class="w-full h-auto object-cover"
+            loading="eager"
+          />
+        </div>
+      )
+    }
+
+    <div class="flex gap-12">
+      {
+        headings && headings.length > 0 && (
+          <aside class="hidden lg:block w-56 shrink-0">
+            <div class="sticky top-24">
+              <TableOfContents headings={headings} />
+            </div>
+          </aside>
+        )
+      }
+
+      <div class="flex-1 min-w-0">
+        <div class="prose-content">
+          <slot />
+        </div>
+
+        <div class="mt-10 pt-8 border-t border-border">
+          <div class="flex flex-wrap gap-2 mb-8">
+            {
+              tags.map((tag) => (
+                <a
+                  href={`/tags/${tag.toLowerCase().replace(/\s+/g, "-")}`}
+                  class="px-3 py-1.5 text-sm rounded-lg bg-bg-tertiary text-text-secondary hover:text-text-primary hover:bg-bg-card transition-all border border-border"
+                >
+                  #{tag}
+                </a>
+              ))
+            }
+          </div>
+
+          <div class="flex items-center justify-between flex-wrap gap-4">
+            <ShareButtons title={title} url={Astro.url.href} />
+            <BookmarkButton />
+          </div>
+        </div>
+
+        <div class="mt-12">
+          <GiscusComments />
+        </div>
+
+        <RecentlyViewed />
+
+        <Recommendations
+          currentSlug={slug}
+          currentTags={tags}
+          allPosts={allPosts}
+        />
+      </div>
+    </div>
+  </article>
+</BaseLayout>

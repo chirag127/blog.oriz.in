@@ -1,0 +1,51 @@
+---
+
+---
+
+<section class="glass-card p-8 sm:p-10 gradient-border">
+  <div class="max-w-xl mx-auto text-center">
+    <div class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-accent/10 text-accent-light mb-5">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+      </svg>
+    </div>
+
+    <h2 class="text-2xl sm:text-3xl font-bold text-text-primary mb-3">
+      Subscribe to the newsletter
+    </h2>
+
+    <p class="text-text-secondary leading-relaxed mb-8">
+      Get weekly updates on software engineering, open-source projects, AI, and the latest articles — delivered straight to your inbox. No spam, unsubscribe anytime.
+    </p>
+
+    <form
+      action="https://buttondown.com/api/emails/embed-subscribe/chirag127"
+      method="post"
+      target="popupwindow"
+      onsubmit="window.open('https://buttondown.com/chirag127', 'popupwindow')"
+      class="flex flex-col sm:flex-row gap-3"
+    >
+      <input
+        type="email"
+        name="email"
+        placeholder="you@example.com"
+        required
+        autocomplete="email"
+        class="flex-1 px-4 py-3 rounded-lg bg-bg-secondary border border-border text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/50 transition-all text-sm"
+      />
+      <button
+        type="submit"
+        class="btn-primary whitespace-nowrap"
+      >
+        Subscribe
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+        </svg>
+      </button>
+    </form>
+
+    <p class="text-xs text-text-tertiary mt-4">
+      Powered by <a href="https://buttondown.com" target="_blank" rel="noopener noreferrer" class="text-accent-light hover:underline">Buttondown</a> · Free forever
+    </p>
+  </div>
+</section>

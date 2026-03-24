@@ -1,0 +1,42 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
+
+const allPosts = await getCollection("blog", ({ data }) => !data.draft);
+const tagMap = new Map<string, number>();
+
+allPosts.forEach((post) => {
+  post.data.tags.forEach((tag) => {
+    tagMap.set(tag, (tagMap.get(tag) || 0) + 1);
+  });
+});
+
+const sortedTags = [...tagMap.entries()].sort((a, b) => b[1] - a[1]);
+---
+
+<BaseLayout title="Tags">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 py-12">
+    <div class="mb-10 animate-fade-in">
+      <h1 class="text-4xl font-bold tracking-tight mb-3">Tags</h1>
+      <p class="text-lg text-text-secondary">
+        {sortedTags.length} tag{sortedTags.length !== 1 ? "s" : ""}
+      </p>
+    </div>
+
+    <div class="flex flex-wrap gap-3">
+      {sortedTags.map(([tag, count]) => (
+        <a
+          href={`/tags/${tag.toLowerCase().replace(/\s+/g, "-")}`}
+          class="group glass-card px-4 py-2.5 flex items-center gap-2 hover:-translate-y-0.5 transition-all"
+        >
+          <span class="text-text-secondary group-hover:text-accent-light transition-colors">
+            #{tag}
+          </span>
+          <span class="text-xs text-text-tertiary bg-bg-tertiary px-1.5 py-0.5 rounded">
+            {count}
+          </span>
+        </a>
+      ))}
+    </div>
+  </div>
+</BaseLayout>

@@ -1,0 +1,23 @@
+---
+
+---
+
+<div class="fixed top-0 left-0 right-0 h-[2px] z-[100] bg-transparent">
+  <div
+    id="scroll-progress-bar"
+    class="h-full bg-gradient-to-r from-accent to-accent-light w-0 transition-[width] duration-75"
+  >
+  </div>
+</div>
+
+<script is:inline>
+  const progressBar = document.getElementById("scroll-progress-bar");
+  if (progressBar) {
+    window.addEventListener("scroll", () => {
+      const scrollTop = window.scrollY;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+      progressBar.style.width = `${progress}%`;
+    });
+  }
+</script>

@@ -1,0 +1,67 @@
+---
+
+---
+
+<div id="recently-viewed" class="hidden">
+  <h3 class="text-xs font-semibold uppercase tracking-wider text-text-tertiary mb-3">
+    Recently Viewed
+  </h3>
+  <ul id="recently-viewed-list" class="space-y-2"></ul>
+</div>
+
+<script is:inline>
+  const MAX_RECENT = 5;
+  const pageUrl = window.location.pathname;
+  const pageTitle = document.title.replace(" | Chirag Singhal", "");
+
+  function getRecentlyViewed() {
+    try {
+      return JSON.parse(localStorage.getItem("recentlyViewed") || "[]");
+    } catch {
+      return [];
+    }
+  }
+
+  function saveRecentlyViewed(items) {
+    localStorage.setItem("recentlyViewed", JSON.stringify(items));
+  }
+
+  function addToRecentlyViewed() {
+    if (!pageUrl.startsWith("/blog/")) return;
+
+    let items = getRecentlyViewed();
+    items = items.filter((item) => item.url !== pageUrl);
+    items.unshift({ url: pageUrl, title: pageTitle, date: new Date().toISOString() });
+    items = items.slice(0, MAX_RECENT);
+    saveRecentlyViewed(items);
+  }
+
+  function renderRecentlyViewed() {
+    const container = document.getElementById("recently-viewed");
+    const list = document.getElementById("recently-viewed-list");
+    if (!container || !list) return;
+
+    const items = getRecentlyViewed().filter((item) => item.url !== pageUrl);
+
+    if (items.length === 0) {
+      container.classList.add("hidden");
+      return;
+    }
+
+    container.classList.remove("hidden");
+    list.innerHTML = items
+      .map(
+        (item) => `
+      <li>
+        <a href="${item.url}" class="block text-sm text-text-tertiary hover:text-text-primary transition-colors py-0.5 truncate">
+          ${item.title}
+        </a>
+      </li>
+    `
+      )
+      .join("");
+  }
+
+  addToRecentlyViewed();
+  renderRecentlyViewed();
+</script>

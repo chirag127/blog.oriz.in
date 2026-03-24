@@ -1,0 +1,36 @@
+backend:
+  name: git-gateway
+  branch: main
+
+media_folder: "public/images/uploads"
+public_folder: "/images/uploads"
+
+slug:
+  encoding: "ascii"
+  clean_accents: true
+
+site_url: "https://blog.oriz.in"
+display_url: "https://blog.oriz.in"
+logo_url: "https://blog.oriz.in/favicon.svg"
+
+collections:
+  - name: "blog"
+    label: "Blog Posts"
+    folder: "src/content/blog"
+    create: true
+    slug: "{{slug}}"
+    extension: "mdx"
+    format: "frontmatter"
+    editor:
+      preview: true
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Description", name: "description", widget: "text" }
+      - { label: "Publish Date", name: "pubDate", widget: "datetime" }
+      - { label: "Updated Date", name: "updatedDate", widget: "datetime", required: false }
+      - { label: "Hero Image", name: "heroImage", widget: "image", required: false }
+      - { label: "Tags", name: "tags", widget: "list", default: [] }
+      - { label: "Category", name: "category", widget: "string", default: "General" }
+      - { label: "Draft", name: "draft", widget: "boolean", default: false }
+      - { label: "Author", name: "author", widget: "string", default: "Chirag Singhal" }
+      - { label: "Body", name: "body", widget: "markdown" }

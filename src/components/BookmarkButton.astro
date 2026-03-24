@@ -1,0 +1,76 @@
+---
+
+---
+
+<div
+  id="bookmark-btn"
+  class="inline-flex items-center gap-1.5 text-sm text-text-tertiary hover:text-accent-light cursor-pointer transition-colors"
+  role="button"
+  tabindex="0"
+  aria-label="Toggle bookmark"
+>
+  <svg id="bookmark-icon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+  </svg>
+  <span id="bookmark-label">Bookmark</span>
+</div>
+
+<script is:inline>
+  const bookmarkBtn = document.getElementById("bookmark-btn");
+  const bookmarkIcon = document.getElementById("bookmark-icon");
+  const bookmarkLabel = document.getElementById("bookmark-label");
+
+  const pageUrl = window.location.pathname;
+  const pageTitle = document.title.replace(" | Chirag Singhal", "");
+
+  function getBookmarks() {
+    try {
+      return JSON.parse(localStorage.getItem("bookmarks") || "[]");
+    } catch {
+      return [];
+    }
+  }
+
+  function isBookmarked() {
+    return getBookmarks().some((b) => b.url === pageUrl);
+  }
+
+  function updateUI() {
+    if (isBookmarked()) {
+      bookmarkIcon.setAttribute("fill", "currentColor");
+      bookmarkLabel.textContent = "Bookmarked";
+      bookmarkBtn?.classList.add("text-accent-light");
+    } else {
+      bookmarkIcon.setAttribute("fill", "none");
+      bookmarkLabel.textContent = "Bookmark";
+      bookmarkBtn?.classList.remove("text-accent-light");
+    }
+  }
+
+  function toggleBookmark() {
+    const bookmarks = getBookmarks();
+    if (isBookmarked()) {
+      const filtered = bookmarks.filter((b) => b.url !== pageUrl);
+      localStorage.setItem("bookmarks", JSON.stringify(filtered));
+    } else {
+      bookmarks.push({
+        url: pageUrl,
+        title: pageTitle,
+        date: new Date().toISOString(),
+      });
+      localStorage.setItem("bookmarks", JSON.stringify(bookmarks));
+    }
+    updateUI();
+    document.dispatchEvent(new CustomEvent("bookmarks-updated"));
+  }
+
+  bookmarkBtn?.addEventListener("click", toggleBookmark);
+  bookmarkBtn?.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      toggleBookmark();
+    }
+  });
+
+  updateUI();
+</script>

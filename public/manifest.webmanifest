@@ -1,0 +1,26 @@
+{
+  "name": "Chirag Singhal",
+  "short_name": "Chirag",
+  "description": "Software Engineer specializing in scalable backend architectures, full-stack development, AI-driven automation, and cloud-native deployments.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0a0b",
+  "theme_color": "#0a0a0b",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/icons/icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/favicon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "categories": ["technology", "blog"],
+  "lang": "en"
+}

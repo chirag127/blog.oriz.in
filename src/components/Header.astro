@@ -1,0 +1,77 @@
+---
+import { SITE_CONFIG } from "../config";
+import SearchIcon from "./icons/SearchIcon.astro";
+import MenuIcon from "./icons/MenuIcon.astro";
+---
+
+<header class="sticky top-0 z-50 w-full border-b border-border bg-bg-primary/80 backdrop-blur-xl">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+    <a href="/" class="flex items-center gap-2 group">
+      <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-accent to-accent-dark flex items-center justify-center text-white font-bold text-xs">
+        CS
+      </div>
+      <span class="font-semibold text-text-primary group-hover:text-accent-light transition-colors">
+        {SITE_CONFIG.title}
+      </span>
+    </a>
+
+    <nav class="hidden md:flex items-center gap-1">
+      <a href="/" class="btn-ghost text-sm">Home</a>
+      <a href="/blog" class="btn-ghost text-sm">Blog</a>
+      <a href="/about" class="btn-ghost text-sm">About</a>
+      <a href="/tags" class="btn-ghost text-sm">Tags</a>
+      <a href="/categories" class="btn-ghost text-sm">Categories</a>
+      <a href="/bookmarks" class="btn-ghost text-sm">Bookmarks</a>
+    </nav>
+
+    <div class="flex items-center gap-2">
+      <button
+        id="search-trigger"
+        class="btn-ghost flex items-center gap-2 text-sm"
+        aria-label="Search"
+      >
+        <SearchIcon class="w-4 h-4" />
+        <span class="hidden sm:inline text-text-tertiary">Search...</span>
+        <kbd class="hidden sm:inline-flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] font-mono bg-bg-tertiary rounded border border-border text-text-tertiary">
+          ⌘K
+        </kbd>
+      </button>
+
+      <button
+        id="mobile-menu-trigger"
+        class="md:hidden btn-ghost"
+        aria-label="Toggle menu"
+      >
+        <MenuIcon class="w-5 h-5" />
+      </button>
+    </div>
+  </div>
+
+  <div
+    id="mobile-menu"
+    class="hidden md:hidden border-t border-border bg-bg-secondary/95 backdrop-blur-xl"
+  >
+    <nav class="max-w-6xl mx-auto px-4 py-4 flex flex-col gap-1">
+      <a href="/" class="btn-ghost text-sm py-3">Home</a>
+      <a href="/blog" class="btn-ghost text-sm py-3">Blog</a>
+      <a href="/about" class="btn-ghost text-sm py-3">About</a>
+      <a href="/tags" class="btn-ghost text-sm py-3">Tags</a>
+      <a href="/categories" class="btn-ghost text-sm py-3">Categories</a>
+      <a href="/bookmarks" class="btn-ghost text-sm py-3">Bookmarks</a>
+    </nav>
+  </div>
+</header>
+
+<script is:inline>
+  const mobileTrigger = document.getElementById("mobile-menu-trigger");
+  const mobileMenu = document.getElementById("mobile-menu");
+
+  mobileTrigger?.addEventListener("click", () => {
+    mobileMenu?.classList.toggle("hidden");
+  });
+
+  document.getElementById("search-trigger")?.addEventListener("click", () => {
+    document.getElementById("search-modal")?.classList.remove("hidden");
+    document.getElementById("search-input")?.focus();
+  });
+</script>

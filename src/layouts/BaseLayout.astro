@@ -1,0 +1,92 @@
+---
+import "../styles/global.css";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import ScrollProgress from "../components/ScrollProgress.astro";
+import BackToTop from "../components/BackToTop.astro";
+import { SITE_CONFIG } from "../config";
+
+interface Props {
+  title: string;
+  description?: string;
+  ogImage?: string;
+}
+
+const {
+  title,
+  description = SITE_CONFIG.description,
+  ogImage,
+} = Astro.props;
+
+const canonicalURL = new URL(Astro.url.pathname, SITE_CONFIG.url);
+const cfBeacon = import.meta.env.PUBLIC_CF_BEACON || SITE_CONFIG.analytics.cloudflareBeacon;
+---
+
+<!doctype html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="generator" content={Astro.generator} />
+
+    <title>{title} | {SITE_CONFIG.title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalURL} />
+
+    <!-- OpenGraph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:title" content={`${title} | ${SITE_CONFIG.title}`} />
+    <meta property="og:description" content={description} />
+    {ogImage && <meta property="og:image" content={ogImage} />}
+    <meta property="og:site_name" content={SITE_CONFIG.title} />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:creator" content={`@${SITE_CONFIG.social.twitter}`} />
+    <meta name="twitter:title" content={`${title} | ${SITE_CONFIG.title}`} />
+    <meta name="twitter:description" content={description} />
+
+    <!-- Favicon & PWA -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="theme-color" content="#0a0a0b" />
+
+    <!-- Sitemap -->
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    <!-- RSS -->
+    <link rel="alternate" type="application/rss+xml" title={`${SITE_CONFIG.title} RSS Feed`} href="/rss.xml" />
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Cloudflare Web Analytics -->
+    {cfBeacon && (
+      <script is:inline defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon={`{"token": "${cfBeacon}"}`}></script>
+    )}
+  </head>
+  <body class="min-h-screen flex flex-col">
+    <ScrollProgress />
+    <Header />
+    <BackToTop />
+    <main class="flex-1">
+      <slot />
+    </main>
+    <Footer />
+
+    <!-- Service Worker Registration -->
+    <script is:inline>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js').catch(() => {});
+        });
+      }
+    </script>
+  </body>
+</html>

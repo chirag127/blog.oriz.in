@@ -1,0 +1,108 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="CMS Guide - How to Create & Edit Blog Posts" description="A comprehensive guide on how to use the CMS to create and edit blog posts on Blog Hunter.">
+  <div class="max-w-4xl mx-auto px-4 py-16">
+    <div class="glass-card p-8 md:p-12">
+      <h1 class="text-4xl md:text-5xl font-bold mb-8 gradient-text">
+        CMS Guide - How to Create & Edit Blog Posts
+      </h1>
+
+      <div class="prose-content space-y-12">
+
+        <section>
+          <h2 class="text-2xl font-bold text-white mb-4">Method 1: Via Decap CMS (Recommended for Non-Technical Users)</h2>
+
+          <h3 class="text-xl font-semibold text-white/90 mt-6 mb-3">Accessing the CMS</h3>
+          <ol class="list-decimal list-inside text-white/70 space-y-2">
+            <li>Navigate to <a href="https://blog.oriz.in/admin" class="text-purple-400 hover:text-purple-300 underline">https://blog.oriz.in/admin</a></li>
+            <li>Click "Login with GitHub"</li>
+            <li>Authorize the Decap CMS app if prompted</li>
+            <li>You'll see the CMS dashboard</li>
+          </ol>
+
+          <h3 class="text-xl font-semibold text-white/90 mt-6 mb-3">Creating a New Post</h3>
+          <ol class="list-decimal list-inside text-white/70 space-y-2">
+            <li>Click "Blog Posts" in the left sidebar</li>
+            <li>Click "New Blog Posts" button</li>
+            <li>Fill in the fields:
+              <ul class="list-disc list-inside ml-6 mt-2 space-y-1">
+                <li><strong class="text-white/90">Title</strong>: Your post title</li>
+                <li><strong class="text-white/90">Description</strong>: A short summary (used in meta tags and previews)</li>
+                <li><strong class="text-white/90">Publish Date</strong>: When the post should appear</li>
+                <li><strong class="text-white/90">Tags</strong>: Add relevant tags (press Enter after each)</li>
+                <li><strong class="text-white/90">Category</strong>: e.g., "Tutorials", "Development", "Personal"</li>
+                <li><strong class="text-white/90">Draft</strong>: Check this to save without publishing</li>
+                <li><strong class="text-white/90">Body</strong>: Write your content in Markdown/MDX</li>
+              </ul>
+            </li>
+            <li>Click "Publish" or "Save as Draft"</li>
+            <li>The CMS commits to GitHub → Cloudflare auto-deploys</li>
+          </ol>
+
+          <h3 class="text-xl font-semibold text-white/90 mt-6 mb-3">Editing an Existing Post</h3>
+          <ol class="list-decimal list-inside text-white/70 space-y-2">
+            <li>Click "Blog Posts" in the sidebar</li>
+            <li>Click the post you want to edit</li>
+            <li>Make changes</li>
+            <li>Click "Publish"</li>
+          </ol>
+
+          <h3 class="text-xl font-semibold text-white/90 mt-6 mb-3">Uploading Images</h3>
+          <ol class="list-decimal list-inside text-white/70 space-y-2">
+            <li>Use the image widget in the CMS</li>
+            <li>Images are saved to <code class="bg-white/10 px-2 py-0.5 rounded text-purple-300">public/images/uploads/</code></li>
+            <li>Reference them in your post as <code class="bg-white/10 px-2 py-0.5 rounded text-purple-300">/images/uploads/filename.jpg</code></li>
+          </ol>
+        </section>
+
+        <section>
+          <h2 class="text-2xl font-bold text-white mb-4">Method 2: Via Git Repository (For Developers)</h2>
+
+          <h3 class="text-xl font-semibold text-white/90 mt-6 mb-3">File Location</h3>
+          <p class="text-white/70">All blog posts live in: <code class="bg-white/10 px-2 py-0.5 rounded text-purple-300">src/content/blog/</code></p>
+
+          <h3 class="text-xl font-semibold text-white/90 mt-6 mb-3">Creating a New Post</h3>
+          <ol class="list-decimal list-inside text-white/70 space-y-2">
+            <li>Create a new <code class="bg-white/10 px-2 py-0.5 rounded text-purple-300">.mdx</code> file in <code class="bg-white/10 px-2 py-0.5 rounded text-purple-300">src/content/blog/</code></li>
+            <li>Filename becomes the URL slug: <code class="bg-white/10 px-2 py-0.5 rounded text-purple-300">my-post.mdx</code> → <code class="bg-white/10 px-2 py-0.5 rounded text-purple-300">/blog/my-post</code></li>
+            <li>Add frontmatter:
+              <pre class="bg-black/40 border border-white/10 rounded-lg p-4 mt-2 text-sm text-white/80 overflow-x-auto"><code>---
+title: "Your Post Title"
+description: "A short description of your post"
+pubDate: 2026-03-24
+tags: ["Tag1", "Tag2"]
+category: "General"
+draft: false
+author: "Chirag Singhal"
+---</code></pre>
+            </li>
+            <li>Write your content below the frontmatter using MDX (Markdown + JSX)</li>
+            <li>Commit and push → Cloudflare auto-deploys</li>
+          </ol>
+
+          <h3 class="text-xl font-semibold text-white/90 mt-6 mb-3">MDX Tips</h3>
+          <ul class="list-disc list-inside text-white/70 space-y-2">
+            <li>Use <code class="bg-white/10 px-2 py-0.5 rounded text-purple-300"># Heading</code> for h1, <code class="bg-white/10 px-2 py-0.5 rounded text-purple-300">## Heading</code> for h2, etc.</li>
+            <li>Use backtick fences for code blocks with language hints</li>
+            <li>Import components: <code class="bg-white/10 px-2 py-0.5 rounded text-purple-300">import MyComponent from '../../components/MyComponent.astro'</code></li>
+            <li>Add images: <code class="bg-white/10 px-2 py-0.5 rounded text-purple-300">![Alt text](/images/uploads/image.jpg)</code></li>
+          </ul>
+        </section>
+
+        <section>
+          <h2 class="text-2xl font-bold text-white mb-4">Post Guidelines</h2>
+          <ul class="list-disc list-inside text-white/70 space-y-2">
+            <li>Always include a description (150-160 chars for SEO)</li>
+            <li>Use 3-5 relevant tags</li>
+            <li>Choose one category</li>
+            <li>Add a heroImage if possible</li>
+            <li>Keep titles under 60 characters</li>
+          </ul>
+        </section>
+
+      </div>
+    </div>
+  </div>
+</BaseLayout>

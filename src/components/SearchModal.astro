@@ -1,0 +1,112 @@
+---
+
+---
+
+<div
+  id="search-modal"
+  class="hidden fixed inset-0 z-[200] flex items-start justify-center pt-[15vh] bg-black/60 backdrop-blur-sm"
+  role="dialog"
+  aria-modal="true"
+>
+  <div class="w-full max-w-xl mx-4 glass-card animate-slide-down">
+    <div class="flex items-center gap-3 p-4 border-b border-border">
+      <svg class="w-5 h-5 text-text-tertiary shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+      </svg>
+      <input
+        id="search-input"
+        type="text"
+        placeholder="Search posts..."
+        class="flex-1 bg-transparent border-none outline-none text-text-primary placeholder:text-text-tertiary text-lg"
+        autocomplete="off"
+      />
+      <kbd class="text-xs px-2 py-0.5 rounded bg-bg-tertiary text-text-tertiary border border-border">ESC</kbd>
+    </div>
+
+    <div id="search-results" class="max-h-80 overflow-y-auto p-2">
+      <div class="text-center py-8 text-text-tertiary text-sm">
+        Start typing to search...
+      </div>
+    </div>
+  </div>
+</div>
+
+<script is:inline>
+  const searchModal = document.getElementById("search-modal");
+  const searchInput = document.getElementById("search-input");
+  const searchResults = document.getElementById("search-results");
+
+  let searchIndex = null;
+
+  async function loadSearchIndex() {
+    if (searchIndex) return searchIndex;
+    try {
+      const res = await fetch("/search-index.json");
+      searchIndex = await res.json();
+      return searchIndex;
+    } catch {
+      return [];
+    }
+  }
+
+  function simpleSearch(query, items) {
+    const lower = query.toLowerCase();
+    return items
+      .filter(
+        (item) =>
+          item.title.toLowerCase().includes(lower) ||
+          item.description.toLowerCase().includes(lower) ||
+          (item.tags && item.tags.some((t) => t.toLowerCase().includes(lower)))
+      )
+      .slice(0, 8);
+  }
+
+  function renderResults(results) {
+    if (results.length === 0) {
+      searchResults.innerHTML =
+        '<div class="text-center py-8 text-text-tertiary text-sm">No results found</div>';
+      return;
+    }
+
+    searchResults.innerHTML = results
+      .map(
+        (r) => `
+      <a href="${r.url}" class="block p-3 rounded-lg hover:bg-bg-tertiary transition-colors group">
+        <h4 class="text-sm font-medium text-text-primary group-hover:text-accent-light transition-colors">${r.title}</h4>
+        <p class="text-xs text-text-tertiary mt-1 line-clamp-1">${r.description}</p>
+      </a>
+    `
+      )
+      .join("");
+  }
+
+  searchInput?.addEventListener("input", async (e) => {
+    const query = e.target.value.trim();
+    if (!query) {
+      searchResults.innerHTML =
+        '<div class="text-center py-8 text-text-tertiary text-sm">Start typing to search...</div>';
+      return;
+    }
+
+    const index = await loadSearchIndex();
+    const results = simpleSearch(query, index);
+    renderResults(results);
+  });
+
+  searchModal?.addEventListener("click", (e) => {
+    if (e.target === searchModal) {
+      searchModal.classList.add("hidden");
+    }
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      searchModal?.classList.add("hidden");
+    }
+    if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+      e.preventDefault();
+      searchModal?.classList.remove("hidden");
+      searchInput?.focus();
+    }
+  });
+</script>

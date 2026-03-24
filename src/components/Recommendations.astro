@@ -1,0 +1,55 @@
+---
+interface Props {
+  currentSlug: string;
+  currentTags: string[];
+  allPosts: Array<{
+    id: string;
+    data: {
+      title: string;
+      description: string;
+      tags: string[];
+      category: string;
+      pubDate: Date;
+    };
+  }>;
+}
+
+const { currentSlug, currentTags, allPosts } = Astro.props;
+
+const scored = allPosts
+  .filter((post) => post.id !== currentSlug)
+  .map((post) => {
+    const sharedTags = post.data.tags.filter((tag) =>
+      currentTags.includes(tag)
+    ).length;
+    return { post, score: sharedTags };
+  })
+  .sort((a, b) => b.score - a.score)
+  .slice(0, 3);
+---
+
+{scored.length > 0 && (
+  <section class="mt-16 pt-10 border-t border-border">
+    <h2 class="text-2xl font-bold tracking-tight mb-6">Related Posts</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      {scored.map(({ post }) => (
+        <a
+          href={`/blog/${post.id}`}
+          class="group glass-card p-5 hover:-translate-y-1 transition-all"
+        >
+          <h3 class="text-sm font-semibold text-text-primary group-hover:text-accent-light transition-colors line-clamp-2 mb-2">
+            {post.data.title}
+          </h3>
+          <p class="text-xs text-text-tertiary line-clamp-2">
+            {post.data.description}
+          </p>
+          <div class="flex flex-wrap gap-1 mt-3">
+            {post.data.tags.slice(0, 2).map((tag) => (
+              <span class="text-[10px] text-text-tertiary">#{tag}</span>
+            ))}
+          </div>
+        </a>
+      ))}
+    </div>
+  </section>
+)}

@@ -1,0 +1,29 @@
+---
+
+---
+
+<button
+  id="back-to-top"
+  class="hidden fixed bottom-6 left-6 z-[150] w-10 h-10 rounded-full glass-card flex items-center justify-center text-text-tertiary hover:text-text-primary transition-all hover:shadow-card"
+  aria-label="Back to top"
+>
+  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+  </svg>
+</button>
+
+<script is:inline>
+  const backToTop = document.getElementById("back-to-top");
+  if (backToTop) {
+    window.addEventListener("scroll", () => {
+      if (window.scrollY > 400) {
+        backToTop.classList.remove("hidden");
+      } else {
+        backToTop.classList.add("hidden");
+      }
+    });
+    backToTop.addEventListener("click", () => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  }
+</script>

@@ -1,0 +1,56 @@
+---
+title: "Lessons from Building Distributed Systems at TCS"
+description: "Real-world insights from designing scalable backend systems handling millions of requests daily at Tata Consultancy Services."
+pubDate: 2026-03-15
+tags: ["Distributed Systems", "Kafka", "Redis", "Backend", "TCS"]
+category: "Engineering"
+author: "Chirag Singhal"
+draft: false
+---
+
+# Lessons from Building Distributed Systems at TCS
+
+Since joining TCS in June 2025, I've been working on backend systems that handle millions of requests daily. Here are the hard-won lessons.
+
+## 1. Event-Driven > Request-Response
+
+Switching from synchronous REST calls to Apache Kafka for inter-service communication reduced our P99 latency by 60%.
+
+```python
+# Before: Synchronous
+response = service_b.process(data)  # Blocks until complete
+
+# After: Event-driven
+producer.send('events', {'type': 'process', 'data': data})
+```
+
+## 2. Redis is Not Just Caching
+
+We use Redis for:
+- Rate limiting (sliding window counters)
+- Session management
+- Real-time leaderboards
+- Distributed locks (Redlock algorithm)
+
+## 3. Circuit Breakers Save Lives
+
+When downstream services fail, circuit breakers prevent cascade failures:
+
+```typescript
+const breaker = new CircuitBreaker(apiCall, {
+  timeout: 3000,
+  errorThresholdPercentage: 50,
+  resetTimeout: 30000,
+});
+```
+
+## 4. Observability is Non-Negotiable
+
+You can't fix what you can't see. We use:
+- Prometheus + Grafana for metrics
+- Jaeger for distributed tracing
+- ELK stack for centralized logging
+
+## 5. Design for Failure
+
+Every service assumes its dependencies will fail. Graceful degradation > complete outage.

@@ -1,0 +1,73 @@
+---
+title: "Building Real-World RAG Pipelines with LangChain"
+description: "A practical guide to building Retrieval-Augmented Generation pipelines for production applications using LangChain and vector databases."
+pubDate: 2026-03-10
+tags: ["AI", "LangChain", "RAG", "Vector Database", "Python"]
+category: "AI/ML"
+author: "Chirag Singhal"
+draft: false
+---
+
+# Building Real-World RAG Pipelines with LangChain
+
+RAG (Retrieval-Augmented Generation) is the most practical pattern for building AI applications that need access to custom knowledge. Here's how I build production RAG pipelines.
+
+## The Architecture
+
+```
+User Query → Embeddings → Vector Search → Context Retrieval → LLM → Response
+```
+
+## Step 1: Document Ingestion
+
+```python
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_community.document_loaders import DirectoryLoader
+
+loader = DirectoryLoader("./docs", glob="**/*.md")
+documents = loader.load()
+
+splitter = RecursiveCharacterTextSplitter(
+    chunk_size=1000,
+    chunk_overlap=200,
+)
+chunks = splitter.split_documents(documents)
+```
+
+## Step 2: Vector Storage
+
+I use Turso (libSQL with vector search) for production:
+
+```python
+from langchain_community.vectorstores import Turso
+from langchain_openai import OpenAIEmbeddings
+
+vectorstore = Turso.from_documents(
+    chunks,
+    OpenAIEmbeddings(),
+    connection_string=os.environ["TURSO_URL"],
+)
+```
+
+## Step 3: Retrieval + Generation
+
+```python
+from langchain.chains import RetrievalQA
+from langchain_openai import ChatOpenAI
+
+chain = RetrievalQA.from_chain_type(
+    llm=ChatOpenAI(model="gpt-4o"),
+    retriever=vectorstore.as_retriever(search_kwargs={"k": 5}),
+)
+```
+
+## Production Considerations
+
+1. **Chunking strategy matters more than the LLM**
+2. **Hybrid search** (vector + keyword) outperforms pure vector search
+3. **Re-ranking** with Cohere or cross-encoders improves relevance
+4. **Caching** repeated queries saves money
+
+## NexusAI
+
+These patterns power NexusAI, my multi-agent RAG platform that orchestrates multiple AI agents for complex research tasks.

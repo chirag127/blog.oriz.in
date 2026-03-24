@@ -1,0 +1,55 @@
+---
+import { SITE_CONFIG } from "../config";
+---
+
+<div class="glass-card p-6">
+  <h3 class="text-lg font-semibold mb-6">Comments</h3>
+
+  <div id="giscus-container">
+    <script
+      src="https://giscus.app/client.js"
+      data-repo={SITE_CONFIG.giscus.repo}
+      data-repo-id={SITE_CONFIG.giscus.repoId}
+      data-category={SITE_CONFIG.giscus.category}
+      data-category-id={SITE_CONFIG.giscus.categoryId}
+      data-mapping={SITE_CONFIG.giscus.mapping}
+      data-strict={SITE_CONFIG.giscus.strict}
+      data-reactions-enabled={SITE_CONFIG.giscus.reactionsEnabled}
+      data-emit-metadata={SITE_CONFIG.giscus.emitMetadata}
+      data-input-position={SITE_CONFIG.giscus.inputPosition}
+      data-theme="dark"
+      data-lang={SITE_CONFIG.giscus.lang}
+      data-loading={SITE_CONFIG.giscus.loading}
+      crossorigin="anonymous"
+      is:inline
+      async
+    />
+  </div>
+</div>
+
+<script is:inline>
+  if (typeof window !== "undefined") {
+    const updateGiscusTheme = () => {
+      const iframe = document.querySelector("iframe.giscus-frame");
+      if (!iframe) return;
+
+      const isDark = document.documentElement.classList.contains("dark");
+      iframe.contentWindow?.postMessage(
+        {
+          giscus: {
+            setConfig: {
+              theme: isDark ? "dark" : "light",
+            },
+          },
+        },
+        "https://giscus.app"
+      );
+    };
+
+    const observer = new MutationObserver(updateGiscusTheme);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+  }
+</script>

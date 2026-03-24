@@ -1,0 +1,61 @@
+---
+title: "Why I Bet on Cloudflare Workers for Edge Computing"
+description: "How Cloudflare Workers changed the way I think about backend architecture, and why edge computing is the future."
+pubDate: 2026-02-28
+tags: ["Cloudflare Workers", "Edge Computing", "Serverless", "Architecture"]
+category: "Engineering"
+author: "Chirag Singhal"
+draft: false
+---
+
+# Why I Bet on Cloudflare Workers for Edge Computing
+
+After using AWS Lambda, traditional VPS, and bare metal servers, Cloudflare Workers changed my perspective on backend architecture.
+
+## The Old Way
+
+Traditional backend: server in one region, users worldwide. A user in Tokyo hits my server in Mumbai. That's 200ms of latency before any processing happens.
+
+## The Cloudflare Workers Way
+
+Workers run at 300+ edge locations globally. A user in Tokyo hits a Worker in Tokyo. Latency: < 5ms.
+
+## What I Build with Workers
+
+### Oriz API Layer
+Every tool endpoint runs as a Worker. 1000+ tools, zero servers.
+
+### URL Shortener
+Edge-based redirects with analytics. Response time: < 10ms globally.
+
+### Auth Middleware
+JWT validation at the edge before requests even reach my origin server.
+
+## The KV + D1 + R2 Stack
+
+```javascript
+// KV for hot data (sessions, rate limits)
+await env.KV.get(`rate:${ip}`);
+
+// D1 for relational data (SQLite at the edge)
+const { results } = await env.DB.prepare(
+  "SELECT * FROM posts WHERE slug = ?"
+).bind(slug).all();
+
+// R2 for file storage (S3-compatible, no egress fees)
+await env.R2.put(key, file);
+```
+
+## When NOT to Use Workers
+
+- Long-running processes (> 30s)
+- Heavy computation (CPU-bound)
+- WebSocket connections (use Durable Objects instead)
+
+## Cost Comparison
+
+My entire Oriz infrastructure costs ~$5/month on Cloudflare. The same on AWS would be $50+.
+
+## Conclusion
+
+Edge computing isn't just about speed — it's about simplicity. One deployment, global reach, zero ops. That's the future.

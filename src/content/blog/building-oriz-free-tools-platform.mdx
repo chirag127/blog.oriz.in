@@ -1,0 +1,48 @@
+---
+title: "Building Oriz: 1000+ Free Online Tools Platform"
+description: "How I built Oriz.in — a platform with over 1000 free online tools using Next.js, Cloudflare Workers, and a microservices architecture."
+pubDate: 2026-03-20
+tags: ["Oriz", "Next.js", "Cloudflare Workers", "Side Project"]
+category: "Projects"
+author: "Chirag Singhal"
+draft: false
+---
+
+# Building Oriz: 1000+ Free Online Tools Platform
+
+Oriz (oriz.in) started as a weekend project and grew into a platform serving thousands of users daily. Here's the story of how it was built.
+
+## The Problem
+
+I kept searching for simple online tools — image converters, JSON formatters, hash generators — and kept hitting paywalls or ad-heavy sites. I thought: what if I built one platform with everything?
+
+## Architecture
+
+- **Frontend**: Next.js 14 with App Router
+- **API Layer**: Cloudflare Workers (edge computing, zero cold starts)
+- **Storage**: Cloudflare R2 for generated files
+- **CDN**: Cloudflare Pages for static assets
+
+## Key Technical Decisions
+
+### Edge-First Architecture
+
+Every tool runs on Cloudflare Workers, meaning < 50ms latency globally. No server to manage, no scaling concerns.
+
+### Monorepo Structure
+
+All 1000+ tools live in a Turborepo monorepo with shared UI components and utilities.
+
+### AI Integration
+
+Some tools use LangChain for AI-powered features like text summarization and code explanation.
+
+## Lessons Learned
+
+1. Start with 10 tools, validate, then scale
+2. SEO is everything for a tools platform
+3. Performance beats features every time
+
+## What's Next
+
+Oriz is growing. I'm adding more AI-powered tools and building an API for developers to integrate Oriz tools into their own apps.

@@ -1,0 +1,105 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="Bookmarks" description="Your saved blog posts.">
+  <section class="max-w-4xl mx-auto px-4 sm:px-6 pt-20 pb-16">
+    <div class="mb-10 animate-fade-in">
+      <h1 class="text-4xl sm:text-5xl font-bold tracking-tight mb-3">Bookmarks</h1>
+      <p class="text-text-secondary text-lg">Your saved posts for later reading.</p>
+    </div>
+
+    <div id="bookmarks-container">
+      <div id="bookmarks-empty" class="glass-card p-12 text-center animate-slide-up" style="display: none;">
+        <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-bg-tertiary text-text-tertiary mb-5">
+          <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+          </svg>
+        </div>
+        <h2 class="text-xl font-semibold text-text-primary mb-2">No bookmarks yet</h2>
+        <p class="text-text-tertiary">Bookmark posts from the blog to save them here for later.</p>
+      </div>
+
+      <div id="bookmarks-list" class="space-y-4" style="display: none;"></div>
+    </div>
+  </section>
+
+  <template id="bookmark-template">
+    <div class="glass-card p-5 flex items-start gap-4 transition-all duration-300 hover:border-border-hover group">
+      <div class="flex-1 min-w-0">
+        <a
+          class="bookmark-link block group-hover:text-accent-light transition-colors"
+        >
+          <h3 class="bookmark-title text-lg font-semibold text-text-primary truncate"></h3>
+        </a>
+        <p class="bookmark-date text-xs text-text-tertiary mt-1"></p>
+      </div>
+      <button
+        class="bookmark-remove btn-ghost text-sm text-text-tertiary hover:text-error flex-shrink-0"
+        aria-label="Remove bookmark"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+  </template>
+
+  <script is:inline>
+    function getBookmarks() {
+      try {
+        return JSON.parse(localStorage.getItem("bookmarks") || "[]");
+      } catch {
+        return [];
+      }
+    }
+
+    function renderBookmarks() {
+      const bookmarks = getBookmarks();
+      const emptyEl = document.getElementById("bookmarks-empty");
+      const listEl = document.getElementById("bookmarks-list");
+      const template = document.getElementById("bookmark-template");
+
+      listEl.innerHTML = "";
+
+      if (bookmarks.length === 0) {
+        emptyEl.style.display = "";
+        listEl.style.display = "none";
+        return;
+      }
+
+      emptyEl.style.display = "none";
+      listEl.style.display = "";
+
+      bookmarks.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+      bookmarks.forEach((bookmark) => {
+        const clone = template.content.cloneNode(true);
+        const link = clone.querySelector(".bookmark-link");
+        const title = clone.querySelector(".bookmark-title");
+        const date = clone.querySelector(".bookmark-date");
+        const removeBtn = clone.querySelector(".bookmark-remove");
+
+        link.href = bookmark.url;
+        title.textContent = bookmark.title;
+        date.textContent = new Date(bookmark.date).toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+        });
+
+        removeBtn.addEventListener("click", () => {
+          const updated = getBookmarks().filter((b) => b.url !== bookmark.url);
+          localStorage.setItem("bookmarks", JSON.stringify(updated));
+          renderBookmarks();
+          document.dispatchEvent(new CustomEvent("bookmarks-updated"));
+        });
+
+        listEl.appendChild(clone);
+      });
+    }
+
+    renderBookmarks();
+    document.addEventListener("bookmarks-updated", renderBookmarks);
+  </script>
+</BaseLayout>

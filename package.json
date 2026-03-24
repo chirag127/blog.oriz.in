@@ -1,0 +1,29 @@
+{
+  "name": "blog-hunter",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "A world-class open-source Astro blog platform with zero cost and global CDN scaling",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "lint": "eslint src/",
+    "format": "prettier --write src/"
+  },
+  "dependencies": {
+    "astro": "^6.0.5",
+    "@astrojs/mdx": "^5.0.2",
+    "@astrojs/sitemap": "^3.3.0",
+    "@astrojs/rss": "^4.0.11"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.2.2",
+    "tailwindcss": "^4.2.2",
+    "sharp": "^0.33.5",
+    "typescript": "^5.8.0",
+    "eslint": "^9.21.0",
+    "prettier": "^3.5.0",
+    "prettier-plugin-astro": "^0.14.1"
+  }
+}

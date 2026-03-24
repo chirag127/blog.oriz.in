@@ -1,0 +1,32 @@
+{
+  "nav": {
+    "home": "Home",
+    "blog": "Blog",
+    "tags": "Tags",
+    "categories": "Categories",
+    "about": "About",
+    "bookmarks": "Bookmarks"
+  },
+  "home": {
+    "greeting": "Hi, I'm Chirag Singhal",
+    "subtitle": "I build things for the web.",
+    "description": "Software Engineer at TCS. Building scalable backends, AI-powered tools, and cloud-native applications.",
+    "cta_blog": "Read the blog",
+    "cta_about": "About Me",
+    "latest_posts": "Latest Posts",
+    "view_all": "View all"
+  },
+  "blog": {
+    "title": "Blog",
+    "reading_time": "min read",
+    "share": "Share",
+    "bookmark": "Bookmark",
+    "bookmarked": "Bookmarked",
+    "related_posts": "Related Posts",
+    "comments": "Comments"
+  },
+  "footer": {
+    "copyright": "© 2026 Chirag Singhal. Open source under MIT License.",
+    "built_with": "Built with"
+  }
+}
