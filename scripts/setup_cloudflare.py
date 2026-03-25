@@ -48,7 +48,7 @@ CF_API_BASE = "https://api.cloudflare.com/client/v4"
 
 PROJECT_NAME = "blog"
 CUSTOM_DOMAIN = "blog.oriz.in"
-GITHUB_REPO = "chirag127/blog-hunter"
+GITHUB_REPO = "chirag127/blog"
 
 
 def cf_request(method, endpoint, data=None):
@@ -269,7 +269,7 @@ def main():
         # Build first
         print("  Building...")
         build = subprocess.run(
-            ["npm", "run", "build"],
+            ["pnpm", "run", "build"],
             capture_output=True,
             text=True,
             timeout=120,
@@ -309,6 +309,21 @@ def main():
             print(f"  [WARN] Build issue, push to GitHub to trigger CI/CD")
     except (FileNotFoundError, subprocess.TimeoutExpired) as e:
         print(f"  [INFO] Push to GitHub to deploy: git push origin main")
+
+    # Step 6: Sync DNS
+    print(f"\n[6/6] Syncing DNS records...")
+    try:
+        from manage_dns import sync_dns, DOMAIN, SUBDOMAIN
+        # Dynamically determine the target from the project data
+        actual_subdomain = proj.get("subdomain", "blog-ehu.pages.dev")
+        print(f"  [*] Actual project subdomain: {actual_subdomain}")
+        
+        # Override the target in the sync function's environment or pass it
+        import manage_dns
+        manage_dns.PAGES_TARGET = actual_subdomain
+        sync_dns()
+    except Exception as e:
+        print(f"  [WARN] DNS sync issue: {e}")
 
     # Summary
     print("\n" + "=" * 60)
