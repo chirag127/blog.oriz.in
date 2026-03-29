@@ -1,4 +1,4 @@
-# Blog Hunter 🏹
+# Blog
 
 A world-class, premium Astro 6 blog platform optimized for speed, SEO, and zero-cost scaling on Cloudflare.
 

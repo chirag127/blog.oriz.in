@@ -1,0 +1,256 @@
+---
+title: "Building Blog Hunter: A Zero-Cost, High-Performance Blog with Astro & Cloudflare"
+description: "A deep dive into how I built this blog from scratch — the architecture decisions, tech stack, automation, and features that make it fast, free, and developer-friendly."
+pubDate: 2026-03-28
+tags: ["Astro", "Cloudflare Pages", "TypeScript", "Tailwind CSS", "Web Development"]
+category: "Projects"
+author: "Chirag Singhal"
+draft: false
+---
+
+# Building Blog Hunter: A Zero-Cost, High-Performance Blog with Astro & Cloudflare
+
+Every engineer needs a blog. Not a Medium profile — a real, owned space on the internet. I built **Blog Hunter** (`blog.oriz.in`) to be exactly that: a fast, free, and fully automated technical blog that runs entirely on Cloudflare's free tier.
+
+This post is a complete walkthrough of the repository — what it does, how it's built, and why every technical decision was made.
+
+## The Goal: Zero Cost, Maximum Performance
+
+I had three hard constraints:
+
+- **$0/month hosting** — no Vercel Pro, no Netlify build minutes, no server costs
+- **100 Lighthouse score** — every metric matters
+- **Zero maintenance** — push to GitHub, and the rest is automated
+
+The answer was clear: **Astro** for static site generation + **Cloudflare Pages** for hosting. Both have generous free tiers that handle personal blogs with zero cost.
+
+## Tech Stack
+
+The stack was chosen for speed, developer experience, and cost:
+
+| Layer | Technology | Purpose |
+|---|---|---|
+| Framework | Astro 6 | Static site generation, island architecture |
+| Styling | Tailwind CSS 4 | Utility-first CSS with custom dark theme |
+| Content | MDX | Blog posts with embedded components |
+| Language | TypeScript (strict) | Type safety across the codebase |
+| Linting | Biome.js | Fast linting and formatting |
+| CMS | Decap CMS | Git-based headless CMS for content editing |
+| Comments | Giscus | GitHub Discussions-powered comments |
+| Newsletter | Buttondown | Email subscription management |
+| Analytics | Cloudflare Web Analytics | Zero-JS beacon-based tracking |
+| Deployment | Cloudflare Pages via Wrangler | Static hosting on the edge |
+| CI/CD | GitHub Actions | Automated build and deploy pipeline |
+| Package Manager | pnpm 9 | Fast, disk-efficient dependency management |
+
+No JavaScript frameworks ship to the client unless explicitly needed. Astro's island architecture means the page is pure HTML by default.
+
+## Architecture Overview
+
+```
+blog.oriz.in/
+├── src/
+│   ├── content/blog/       # MDX blog posts (the content)
+│   ├── components/         # 16 Astro components
+│   ├── layouts/            # Base and blog post layouts
+│   ├── pages/              # Routes (index, blog, tags, categories, etc.)
+│   ├── i18n/locales/       # English and Hindi translations
+│   ├── styles/global.css   # Tailwind + custom theme
+│   ├── config.ts           # Site configuration
+│   └── content.config.ts   # Zod-validated content schema
+├── public/
+│   ├── admin/              # Decap CMS entry point
+│   ├── sw.js               # Service Worker for offline support
+│   └── offline.html        # Offline fallback page
+├── scripts/
+│   ├── setup_cloudflare.py # Full Cloudflare infrastructure automation
+│   └── manage_dns.py       # DNS management via Cloudflare/Spaceship APIs
+└── .github/workflows/
+    └── deploy.yml          # CI/CD pipeline
+```
+
+The separation is clean: content lives in `src/content/blog/`, components in `src/components/`, and automation in `scripts/`. Every file has a clear purpose.
+
+## Content System: MDX + Zod Validation
+
+Blog posts are MDX files with a strict frontmatter schema validated by Zod:
+
+```typescript
+// src/content.config.ts
+const blog = defineCollection({
+  type: "content",
+  schema: z.object({
+    title: z.string(),
+    description: z.string(),
+    pubDate: z.coerce.date(),
+    updatedDate: z.coerce.date().optional(),
+    heroImage: z.string().optional(),
+    tags: z.array(z.string()).default([]),
+    category: z.string().default("General"),
+    draft: z.boolean().default(false),
+    author: z.string().default("Blog Hunter"),
+  }),
+});
+```
+
+This means every post is validated at build time. A missing `title` or malformed `pubDate` breaks the build immediately — no silent failures in production.
+
+Posts support draft mode (`draft: true`), which excludes them from all listings and the final build output. This lets me work on posts without publishing them prematurely.
+
+## Client-Side Features (No Backend Required)
+
+Despite being a static site, Blog Hunter has rich interactivity powered by client-side JavaScript and localStorage:
+
+**Search**: A JSON search index is generated at build time (`/search-index.json`). The search modal filters by title, description, and tags. Triggered by `Cmd+K`.
+
+**Bookmarks**: Users can bookmark posts, stored in localStorage. A dedicated `/bookmarks` page lists all saved posts.
+
+**Recently Viewed**: Tracks the last 5 viewed posts in localStorage and displays them on the homepage.
+
+**Related Posts**: A tag-overlap scoring algorithm recommends the top 3 related posts at the bottom of every article.
+
+**Table of Contents**: A sticky sidebar TOC with `IntersectionObserver`-based scroll spy highlights the current section as you read.
+
+All of this works without any server, database, or API calls. The entire blog is a folder of HTML files.
+
+## The Design: Glassmorphism Dark Theme
+
+The visual design uses a dark theme with glassmorphism effects — translucent cards with backdrop blur, gradient borders, and subtle animations (fade-in, slide-up, slide-down).
+
+The CSS is built on Tailwind CSS 4 with custom CSS properties:
+
+```css
+/* Key design tokens */
+--bg-primary: #0a0a0f;
+--bg-card: rgba(255, 255, 255, 0.03);
+--border-card: rgba(255, 255, 255, 0.08);
+--accent-primary: #6366f1;
+--accent-secondary: #8b5cf6;
+```
+
+The glassmorphism effect comes from `backdrop-filter: blur()` combined with semi-transparent backgrounds. It looks premium without being heavy — the CSS is minimal.
+
+## CI/CD Pipeline
+
+The GitHub Actions workflow is straightforward:
+
+```yaml
+# .github/workflows/deploy.yml
+name: Deploy
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install
+      - run: pnpm biome check .
+      - run: pnpm astro build
+      - run: pnpm wrangler pages deploy dist --project-name=blog
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+```
+
+Push to `main` → lint → build → deploy. No build minutes consumed from my account — Wrangler deploys directly to Cloudflare Pages using their API.
+
+## Infrastructure Automation
+
+I wrote Python scripts to automate the entire Cloudflare setup:
+
+**`setup_cloudflare.py`** handles:
+- Creating the Cloudflare Pages project
+- Configuring the custom domain (`blog.oriz.in`)
+- Setting up Cloudflare Web Analytics
+- Creating GitHub repository secrets
+- Building and deploying the site
+- Syncing DNS records
+
+**`manage_dns.py`** handles:
+- Ensuring CNAME records point to Cloudflare Pages
+- Listing all DNS records
+- Checking domain registration status via Spaceship API
+
+One command sets up everything from scratch. No clicking through dashboards.
+
+## CMS: Two Ways to Write
+
+Not everyone wants to edit MDX files in a code editor. Blog Hunter supports two content creation methods:
+
+1. **Decap CMS** (`/admin`): A visual web interface. Log in via GitHub, fill out form fields, and the CMS commits the MDX file directly to the `main` branch.
+
+2. **Git directly**: Create or edit `.mdx` files in `src/content/blog/` and push.
+
+Both methods trigger the same CI/CD pipeline. A dedicated `/cms-guide` page documents both workflows for anyone who wants to contribute.
+
+## PWA & Offline Support
+
+The blog is a Progressive Web App with:
+
+- **Service Worker** (`sw.js`): Stale-while-revalidate caching strategy for all static assets
+- **Offline fallback** (`offline.html`): A branded offline page when the network is unavailable
+- **Web App Manifest**: Installable on desktop and mobile
+
+This means the blog works offline after the first visit. Articles cached by the Service Worker remain readable without a network connection.
+
+## Internationalization
+
+The blog has i18n infrastructure for English and Hindi, with locale files in `src/i18n/locales/`. While content is currently in English, the translation system is ready for when I start writing in Hindi.
+
+## Performance Numbers
+
+The result of these decisions:
+
+- **Zero JavaScript** shipped on initial page load (Astro's default)
+- **Zero CSS framework overhead** (Tailwind purges unused styles)
+- **Zero server runtime** (pure static HTML)
+- **Zero hosting cost** (Cloudflare Pages free tier)
+- **Zero analytics JavaScript** (Cloudflare's beacon is a pixel, not a script)
+
+Cloudflare's beacon-based analytics adds a single `<img>` tag — no JavaScript bundle, no performance impact. This is how you get a perfect Lighthouse score without compromises.
+
+## Lessons Learned
+
+Building this blog taught me a few things:
+
+**1. Static sites are underrated.** Most blogs don't need a server. A folder of HTML files served from the edge is faster than any server-rendered page.
+
+**2. Astro's island architecture is the right model.** Ship HTML by default. Add JavaScript only where interactivity is needed. No hydration overhead.
+
+**3. Automation pays for itself.** The Python setup scripts took a day to write but save hours on every new project. Infrastructure as code isn't just for large teams.
+
+**4. Client-side features are powerful.** Search, bookmarks, recently viewed — all of this works with localStorage and a JSON file. You don't need a database for a blog.
+
+**5. Free tiers are generous.** Cloudflare Pages, Cloudflare Web Analytics, Giscus, Buttondown — the entire stack costs $0/month. The free tier of modern cloud services is enough for personal projects.
+
+## What's Next
+
+A few things I'm planning:
+
+- **More content**: Technical deep-dives on distributed systems, AI/ML, and edge computing
+- **Hindi translations**: Activating the i18n system for bilingual content
+- **Image optimization**: Using Astro's `<Image>` component for hero images
+- **Webmentions**: Adding indie web support for cross-platform comments
+- **Analytics dashboard**: A private page showing reading trends and popular posts
+
+## The Repository
+
+The full source is on GitHub. The key files to explore:
+
+- `src/content.config.ts` — content schema definition
+- `src/components/SearchModal.astro` — client-side search implementation
+- `src/components/Recommendations.astro` — related posts algorithm
+- `scripts/setup_cloudflare.py` — infrastructure automation
+- `.github/workflows/deploy.yml` — CI/CD pipeline
+
+Building a blog shouldn't require a month of setup or a monthly bill. With Astro and Cloudflare, it doesn't.
