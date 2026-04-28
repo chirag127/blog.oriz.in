@@ -1,8 +1,6 @@
 ---
-import { SITE_CONFIG } from "../config";
 const currentYear = new Date().getFullYear();
 ---
-
 <footer class="border-t border-border bg-bg-secondary/50 mt-20">
   <div class="max-w-6xl mx-auto px-4 sm:px-6 py-12">
     <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-10">
@@ -13,14 +11,14 @@ const currentYear = new Date().getFullYear();
           >
             CS
           </div>
-          <span class="font-semibold text-text-primary">{SITE_CONFIG.title}</span>
+          <span class="font-semibold text-text-primary">Chirag Singhal</span>
         </div>
         <p class="text-sm text-text-tertiary max-w-sm leading-relaxed">
-          {SITE_CONFIG.authorDescription}
+          Software Engineer and tech enthusiast building digital experiences with modern web technologies.
         </p>
         <div class="flex items-center gap-3 mt-4">
           <a
-            href={`https://github.com/${SITE_CONFIG.social.github}`}
+            href="https://github.com/chiragsinghal03"
             class="text-text-tertiary hover:text-accent-light transition-colors"
             target="_blank"
             rel="noopener"
@@ -33,7 +31,7 @@ const currentYear = new Date().getFullYear();
             </svg>
           </a>
           <a
-            href={`https://linkedin.com/in/${SITE_CONFIG.social.linkedin}`}
+            href="https://linkedin.com/in/chiragsinghal03"
             class="text-text-tertiary hover:text-accent-light transition-colors"
             target="_blank"
             rel="noopener"
@@ -46,7 +44,7 @@ const currentYear = new Date().getFullYear();
             </svg>
           </a>
           <a
-            href={`mailto:${SITE_CONFIG.social.email}`}
+            href="mailto:chiragsinghal03@gmail.com"
             class="text-text-tertiary hover:text-accent-light transition-colors"
             aria-label="Email"
           >
