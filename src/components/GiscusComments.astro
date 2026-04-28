@@ -1,11 +1,28 @@
 ---
-import { SITE_CONFIG } from "../config";
+// Removed unused import: SITE_CONFIG is no longer referenced directly; values are passed via props
 ---
 
 <div class="glass-card p-6">
   <h3 class="text-lg font-semibold mb-6">Comments</h3>
   <div id="giscus-container">
-    <script src="https://giscus.app/client.js" data-repo={SITE_CONFIG.giscus.repo} data-repo-id={SITE_CONFIG.giscus.repoId} data-category={SITE_CONFIG.giscus.category} data-category-id={SITE_CONFIG.giscus.categoryId} data-mapping={SITE_CONFIG.giscus.mapping} data-strict={SITE_CONFIG.giscus.strict} data-reactions-enabled={SITE_CONFIG.giscus.reactionsEnabled} data-emit-metadata={SITE_CONFIG.giscus.emitMetadata} data-input-position={SITE_CONFIG.giscus.inputPosition} data-theme="dark" data-lang={SITE_CONFIG.giscus.lang} data-loading={SITE_CONFIG.giscus.loading} crossorigin="anonymous" is:inline async />
+    <script
+      src="https://giscus.app/client.js"
+      data-repo="orizin1/blog-comments"
+      data-repo-id="R_kgDOMsK34w"
+      data-category="Announcements"
+      data-category-id="DIC_kwDOMsK3484Cg6h3"
+      data-mapping="pathname"
+      data-strict="0"
+      data-reactions-enabled="1"
+      data-emit-metadata="0"
+      data-input-position="bottom"
+      data-theme="dark"
+      data-lang="en"
+      data-loading="lazy"
+      crossorigin="anonymous"
+      is:inline
+      async
+    />
   </div>
 </div>
 
