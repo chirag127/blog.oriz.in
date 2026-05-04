@@ -1,0 +1,92 @@
+---
+title: "P2P Lending Risk Analysis: NPA, Defaults, and Capital Erosion"
+description: "Understanding default rates, NPA calculations, recovery mechanisms, and worst-case scenarios in Indian P2P lending with real data."
+pubDate: 2026-05-04
+tags: ["npa", "default rate", "risk analysis", "p2p lending", "capital erosion", "india"]
+category: "Finance & Investment"
+author: "Chirag Singhal"
+draft: false
+---
+
+# Part 4: Risk Analysis — NPA, Defaults, and Capital Erosion
+
+---
+
+## What Does NPA Mean in P2P Lending?
+
+In traditional banking, a loan is classified as a **Non-Performing Asset (NPA)** when the borrower fails to make payments for **90 days or more**. P2P platforms generally follow a similar convention:
+
+*   **0-30 days overdue**: "Delayed" — not yet NPA.
+*   **31-90 days overdue**: "Delinquent" — the platform sends collection reminders.
+*   **90+ days overdue**: Classified as **NPA** — the loan is considered defaulted.
+
+### Gross NPA vs Net NPA
+*   **Gross NPA**: The total value of all loans that are 90+ days overdue, as a percentage of total loans.
+*   **Net NPA**: Gross NPA minus any provisions or recoveries already made.
+
+---
+
+## Real NPA Data from Indian P2P Platforms (2025-2026)
+
+| Platform | Gross NPA (Reported) | What It Means |
+|---|---|---|
+| **LenDenClub** | ~3.62% | ~₹362 out of every ₹10,000 lent is in default |
+| **Lendbox** | ~9.75% | ~₹975 out of every ₹10,000 lent is in default |
+| **Faircent** | ~4-6% | ~₹400-600 out of every ₹10,000 lent is in default |
+| **LiquiLoans** | ~3-5% | ~₹300-500 out of every ₹10,000 lent is in default |
+
+### Important Caveat
+These are **self-reported** figures. There is no independent third-party audit mandated by the RBI for P2P NPA disclosure. The actual default rates experienced by individual investors can vary significantly based on their specific loan portfolio, risk category selection, and tenure.
+
+---
+
+## The Mathematics of Default
+
+Here's a realistic scenario showing how defaults erode your returns:
+
+### Scenario: ₹1,00,000 invested across 200 borrowers at 14% average interest
+
+| Outcome | Amount |
+|---|---|
+| **Gross Interest Earned** | ₹14,000 |
+| **Platform Fees (2%)** | -₹2,000 |
+| **If 5% of loans default (₹5,000 lost)** | -₹5,000 |
+| **Net Return** | ₹7,000 (7% actual return) |
+| **If 10% of loans default (₹10,000 lost)** | -₹10,000 |
+| **Net Return** | ₹2,000 (2% actual return) |
+| **If 15% of loans default** | -₹15,000 |
+| **Net Return** | **-₹3,000 (Capital Erosion!)** |
+
+**Key Insight**: At a 15% default rate, you are not just earning zero — you are losing your principal. This is why NPA data is the single most important metric in P2P lending.
+
+---
+
+## What Happens When a Borrower Defaults?
+
+1.  **Automated Reminders**: SMS, email, and app notifications (0-30 days).
+2.  **Collection Calls**: The platform's internal collection team contacts the borrower (30-90 days).
+3.  **Third-Party Collection Agencies**: External agencies take over recovery efforts (90-180 days).
+4.  **Legal Action**: The platform may file a case in the civil court or initiate arbitration. However, the cost of legal recovery for a ₹50,000 loan often exceeds the loan amount itself.
+5.  **Write-Off**: After 180-365 days of non-recovery, the loan is typically written off. Your capital is gone.
+
+---
+
+## The 5 Types of Risk in P2P Lending
+
+### 1. Credit Risk (Default Risk)
+The borrower stops paying. This is the primary risk and the one that destroys returns.
+
+### 2. Platform Risk
+The P2P platform itself goes bankrupt or loses its RBI license. Your money is in an escrow account (not in the platform's own account), but operational disruption can delay or prevent recovery.
+
+### 3. Liquidity Risk
+Post-August 2024 rules, you cannot exit your investment before the loan matures. If you need emergency funds, they are locked.
+
+### 4. Concentration Risk
+If you lend large amounts to a small number of borrowers and one defaults, the loss is disproportionate.
+
+### 5. Regulatory Risk
+The RBI can change rules at any time (as it did in August 2024), potentially impacting your existing investments.
+
+---
+**Next:** [Part 5: How P2P Lending Income Is Taxed in India](/blog/p2p-lending-india/part-5-tax-implications)
