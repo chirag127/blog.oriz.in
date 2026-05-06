@@ -1,0 +1,329 @@
+---
+/**
+ * /series/[slug] — Individual series detail page.
+ *
+ * Shows the series overview (from the index post)
+ * and lists all parts in logical order.
+ */
+import { getCollection } from "astro:content";
+import PostCard from "../../components/PostCard.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+export async function getStaticPaths() {
+  const allPosts = await getCollection(
+    "blog",
+    ({ data }) => !data.draft,
+  );
+
+  // Discover all folder slugs
+  const folderMap = new Map<
+    string,
+    typeof allPosts
+  >();
+
+  for (const post of allPosts) {
+    const slashIndex = post.id.indexOf("/");
+    if (slashIndex === -1) continue;
+    const folder = post.id.substring(0, slashIndex);
+    const existing = folderMap.get(folder) ?? [];
+    existing.push(post);
+    folderMap.set(folder, existing);
+  }
+
+  return [...folderMap.entries()].map(
+    ([folder, posts]) => ({
+      params: { slug: folder },
+      props: { posts },
+    }),
+  );
+}
+
+const { slug } = Astro.params;
+const { posts } = Astro.props;
+
+// Find index post for series metadata
+const indexPost = posts.find(
+  (p: any) =>
+    p.id === `${slug}/index` ||
+    p.id.endsWith("/index"),
+);
+
+const representative = indexPost ?? posts[0];
+const seriesTitle = representative.data.title;
+const seriesDescription =
+  representative.data.description;
+const seriesCategory = representative.data.category;
+
+// Separate index from parts
+const partPosts = posts.filter(
+  (p: any) =>
+    p.id !== `${slug}/index` &&
+    !p.id.endsWith("/index"),
+);
+
+/**
+ * Sort parts by the `part` field if available,
+ * otherwise by filename (natural sort).
+ */
+const sortedParts = [...partPosts].sort((a, b) => {
+  const partA = a.data.part;
+  const partB = b.data.part;
+
+  if (partA != null && partB != null) {
+    return Number(partA) - Number(partB);
+  }
+
+  // Fallback: natural sort by id
+  return a.id.localeCompare(b.id, undefined, {
+    numeric: true,
+    sensitivity: "base",
+  });
+});
+
+// Compute total word count for reading time
+const totalWords = posts.reduce(
+  (sum: number, p: any) =>
+    sum + (p.body?.split(/\s+/).length ?? 0),
+  0,
+);
+const totalReadingTime = Math.ceil(totalWords / 200);
+
+/**
+ * Map categories to hero gradient pairs.
+ */
+const categoryGradients: Record<
+  string,
+  [string, string]
+> = {
+  Healthcare: ["#10b981", "#059669"],
+  "Health & Medicine": ["#f43f5e", "#e11d48"],
+  "Health & Beauty": ["#ec4899", "#db2777"],
+  Health: ["#14b8a6", "#0d9488"],
+  "Personal Finance": ["#f59e0b", "#d97706"],
+  Finance: ["#eab308", "#ca8a04"],
+  "Finance & Investment": ["#f97316", "#ea580c"],
+  General: ["#6366f1", "#4f46e5"],
+};
+
+const [gradFrom, gradTo] =
+  categoryGradients[seriesCategory] ?? [
+    "#6366f1",
+    "#4f46e5",
+  ];
+---
+
+<BaseLayout
+  title={seriesTitle}
+  description={seriesDescription}
+>
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 py-12">
+    <!-- Breadcrumb -->
+    <nav class="mb-6 animate-fade-in">
+      <ol class="flex items-center gap-2 text-sm">
+        <li>
+          <a
+            href="/series"
+            class="text-accent-light hover:underline"
+          >
+            ← All Series
+          </a>
+        </li>
+      </ol>
+    </nav>
+
+    <!-- Series hero -->
+    <div
+      class="glass-card overflow-hidden mb-10 animate-fade-in"
+    >
+      <!-- Gradient accent bar -->
+      <div
+        class="h-1.5 w-full"
+        style={`background: linear-gradient(90deg, ${gradFrom}, ${gradTo})`}
+      ></div>
+
+      <div class="p-8 sm:p-10">
+        <div class="flex items-center gap-2 mb-4">
+          <span
+            class="text-xs font-medium px-2.5 py-1 rounded-md"
+            style={`background: ${gradFrom}1a; color: ${gradFrom}`}
+          >
+            {seriesCategory}
+          </span>
+          <span class="text-xs text-text-tertiary">
+            Multi-part Series
+          </span>
+        </div>
+
+        <h1
+          class="text-3xl sm:text-4xl font-bold tracking-tight leading-tight mb-4"
+        >
+          {seriesTitle}
+        </h1>
+
+        <p
+          class="text-text-secondary leading-relaxed max-w-3xl mb-6"
+        >
+          {seriesDescription}
+        </p>
+
+        <!-- Stats row -->
+        <div
+          class="flex flex-wrap items-center gap-6 text-sm"
+        >
+          <div
+            class="flex items-center gap-1.5 text-text-secondary"
+          >
+            <svg
+              class="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+              />
+            </svg>
+            <span>
+              {sortedParts.length} part{sortedParts.length !== 1 ? "s" : ""}
+            </span>
+          </div>
+
+          <div
+            class="flex items-center gap-1.5 text-text-secondary"
+          >
+            <svg
+              class="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            <span>~{totalReadingTime} min total</span>
+          </div>
+
+          <div
+            class="flex items-center gap-1.5 text-text-secondary"
+          >
+            <svg
+              class="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+              />
+            </svg>
+            <span>{representative.data.author}</span>
+          </div>
+        </div>
+
+        <!-- Start reading CTA (if parts exist) -->
+        {sortedParts.length > 0 && (
+          <div class="mt-8">
+            <a
+              href={`/blog/${sortedParts[0].id}`}
+              class="btn-primary"
+            >
+              Start Reading — Part 1
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M17 8l4 4m0 0l-4 4m4-4H3"
+                />
+              </svg>
+            </a>
+          </div>
+        )}
+      </div>
+    </div>
+
+    <!-- Index post link (if it exists) -->
+    {indexPost && (
+      <div class="mb-8">
+        <a
+          href={`/blog/${indexPost.id}`}
+          class="glass-card p-5 flex items-center gap-4 transition-all hover:-translate-y-0.5 hover:shadow-card group"
+        >
+          <div
+            class="flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center text-white font-bold text-sm"
+            style={`background: linear-gradient(135deg, ${gradFrom}, ${gradTo})`}
+          >
+            📖
+          </div>
+          <div class="flex-1 min-w-0">
+            <h3 class="text-sm font-semibold text-text-primary group-hover:text-accent-light transition-colors">
+              Series Overview &amp; Table of Contents
+            </h3>
+            <p class="text-xs text-text-tertiary mt-0.5 line-clamp-1">
+              {indexPost.data.description}
+            </p>
+          </div>
+          <svg
+            class="w-4 h-4 text-text-tertiary group-hover:text-accent-light transition-colors flex-shrink-0"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M9 5l7 7-7 7"
+            />
+          </svg>
+        </a>
+      </div>
+    )}
+
+    <!-- Section heading -->
+    <div class="flex items-center gap-3 mb-6">
+      <h2 class="text-xl font-semibold">All Parts</h2>
+      <div
+        class="flex-1 h-px bg-border"
+      ></div>
+    </div>
+
+    <!-- Parts grid -->
+    <div
+      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+    >
+      {sortedParts.map((post, index) => (
+        <div
+          class="animate-slide-up"
+          style={`animation-delay: ${index * 60}ms`}
+        >
+          <PostCard post={post} />
+        </div>
+      ))}
+    </div>
+
+    <!-- Empty state -->
+    {sortedParts.length === 0 && (
+      <div class="text-center py-16 text-text-tertiary">
+        <p class="text-lg">
+          No parts published yet. Check back soon!
+        </p>
+      </div>
+    )}
+  </div>
+</BaseLayout>

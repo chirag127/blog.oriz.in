@@ -1,0 +1,145 @@
+---
+/**
+ * /series — Browse all blog series (folders)
+ *
+ * Dynamically detects every multi-part series by
+ * scanning for posts whose `id` contains a `/`
+ * (i.e. lives inside a subfolder). Groups them by
+ * folder, picks the index post's metadata as the
+ * series title/description, and renders premium cards.
+ */
+import { getCollection } from "astro:content";
+import SeriesCard from "../../components/SeriesCard.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const allPosts = await getCollection(
+  "blog",
+  ({ data }) => !data.draft,
+);
+
+/**
+ * Build a map: folderSlug → array of posts.
+ * Only posts whose id contains "/" are in folders.
+ */
+const folderMap = new Map<
+  string,
+  typeof allPosts
+>();
+
+for (const post of allPosts) {
+  const slashIndex = post.id.indexOf("/");
+  if (slashIndex === -1) continue;
+  const folder = post.id.substring(0, slashIndex);
+  const existing = folderMap.get(folder) ?? [];
+  existing.push(post);
+  folderMap.set(folder, existing);
+}
+
+/**
+ * For each folder, find the "index" post (if any)
+ * to use as the series title/description.
+ * Fall back to the first post alphabetically.
+ */
+interface SeriesInfo {
+  slug: string;
+  title: string;
+  description: string;
+  category: string;
+  postCount: number;
+  latestDate: Date;
+}
+
+const seriesList: SeriesInfo[] = [];
+
+for (const [folder, posts] of folderMap.entries()) {
+  const indexPost = posts.find(
+    (p) =>
+      p.id.endsWith("/index") ||
+      p.id.endsWith("/index.mdx") ||
+      p.id.endsWith("/index.md"),
+  ) ?? posts.find(
+    (p) => p.id === `${folder}/index`,
+  );
+
+  const representative = indexPost ?? posts[0];
+
+  // Count only non-index posts as "parts"
+  const partPosts = posts.filter(
+    (p) =>
+      p.id !== `${folder}/index` &&
+      !p.id.endsWith("/index"),
+  );
+
+  const latestDate = posts.reduce(
+    (max, p) =>
+      p.data.pubDate > max ? p.data.pubDate : max,
+    posts[0].data.pubDate,
+  );
+
+  seriesList.push({
+    slug: folder,
+    title: representative.data.title,
+    description: representative.data.description,
+    category: representative.data.category,
+    postCount: partPosts.length,
+    latestDate,
+  });
+}
+
+// Sort: newest first
+seriesList.sort(
+  (a, b) => b.latestDate.valueOf() - a.latestDate.valueOf(),
+);
+---
+
+<BaseLayout
+  title="Series"
+  description="Browse all multi-part blog series and encyclopedias on healthcare, finance, technology, and more."
+>
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 py-12">
+    <!-- Page header -->
+    <div class="mb-10 animate-fade-in">
+      <h1
+        class="text-4xl font-bold tracking-tight mb-3"
+      >
+        Series &amp; Encyclopedias
+      </h1>
+      <p class="text-lg text-text-secondary max-w-2xl">
+        Deep-dive into {seriesList.length} comprehensive
+        multi-part guides covering healthcare, finance,
+        and technology.
+      </p>
+    </div>
+
+    <!-- Series grid -->
+    <div
+      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+    >
+      {seriesList.map((series, index) => (
+        <div
+          class="animate-slide-up"
+          style={`animation-delay: ${index * 70}ms`}
+        >
+          <SeriesCard
+            slug={series.slug}
+            title={series.title}
+            description={series.description}
+            category={series.category}
+            postCount={series.postCount}
+            latestDate={series.latestDate}
+            index={index}
+          />
+        </div>
+      ))}
+    </div>
+
+    <!-- Empty state (unlikely but defensive) -->
+    {seriesList.length === 0 && (
+      <div class="text-center py-20 text-text-tertiary">
+        <p class="text-lg">
+          No series found yet.
+        </p>
+      </div>
+    )}
+  </div>
+</BaseLayout>

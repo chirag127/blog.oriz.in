@@ -4,6 +4,7 @@ import CommandPalette from "../components/CommandPalette.astro";
 import Newsletter from "../components/Newsletter.astro";
 import PostCard from "../components/PostCard.astro";
 import SearchModal from "../components/SearchModal.astro";
+import SeriesCard from "../components/SeriesCard.astro";
 import { SITE_CONFIG } from "../config";
 import BaseLayout from "../layouts/BaseLayout.astro";
 
@@ -14,6 +15,58 @@ const sortedPosts = allPosts.sort(
 const latestPosts = sortedPosts.slice(0, 6);
 
 const allTags = [...new Set(allPosts.flatMap((p) => p.data.tags))].slice(0, 12);
+
+/**
+ * Build series data for homepage preview.
+ * Shows latest 3 series by most recent post date.
+ */
+const folderMap = new Map<string, typeof allPosts>();
+for (const post of allPosts) {
+  const slashIdx = post.id.indexOf("/");
+  if (slashIdx === -1) continue;
+  const folder = post.id.substring(0, slashIdx);
+  const arr = folderMap.get(folder) ?? [];
+  arr.push(post);
+  folderMap.set(folder, arr);
+}
+
+interface SeriesInfo {
+  slug: string;
+  title: string;
+  description: string;
+  category: string;
+  postCount: number;
+  latestDate: Date;
+}
+
+const seriesPreview: SeriesInfo[] = [];
+for (const [folder, posts] of folderMap.entries()) {
+  const indexPost = posts.find(
+    (p) => p.id === `${folder}/index`,
+  );
+  const rep = indexPost ?? posts[0];
+  const parts = posts.filter(
+    (p) => p.id !== `${folder}/index`,
+  );
+  const latest = posts.reduce(
+    (max, p) =>
+      p.data.pubDate > max ? p.data.pubDate : max,
+    posts[0].data.pubDate,
+  );
+  seriesPreview.push({
+    slug: folder,
+    title: rep.data.title,
+    description: rep.data.description,
+    category: rep.data.category,
+    postCount: parts.length,
+    latestDate: latest,
+  });
+}
+seriesPreview.sort(
+  (a, b) =>
+    b.latestDate.valueOf() - a.latestDate.valueOf(),
+);
+const topSeries = seriesPreview.slice(0, 3);
 ---
 
 <BaseLayout title="Home">
@@ -60,6 +113,29 @@ const allTags = [...new Set(allPosts.flatMap((p) => p.data.tags))].slice(0, 12);
       {latestPosts.map((post, index) => (
         <div class="animate-slide-up" style={`animation-delay: ${index * 80}ms`}>
           <PostCard post={post} />
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section class="max-w-6xl mx-auto px-4 sm:px-6 pb-16">
+    <div class="flex items-center justify-between mb-8">
+      <h2 class="text-2xl font-bold tracking-tight">Browse Series</h2>
+      <a href="/series" class="text-sm text-accent-light hover:underline">View all →</a>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {topSeries.map((series, index) => (
+        <div class="animate-slide-up" style={`animation-delay: ${index * 80}ms`}>
+          <SeriesCard
+            slug={series.slug}
+            title={series.title}
+            description={series.description}
+            category={series.category}
+            postCount={series.postCount}
+            latestDate={series.latestDate}
+            index={index}
+          />
         </div>
       ))}
     </div>

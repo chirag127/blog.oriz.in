@@ -1,0 +1,142 @@
+---
+/**
+ * SeriesCard.astro
+ *
+ * A premium card component that displays a blog series
+ * (folder) with post count, category, date range,
+ * and a gradient accent stripe.
+ */
+interface Props {
+  slug: string;
+  title: string;
+  description: string;
+  category: string;
+  postCount: number;
+  latestDate: Date;
+  /** Unique index for staggered animation */
+  index?: number;
+}
+
+const {
+  slug,
+  title,
+  description,
+  category,
+  postCount,
+  latestDate,
+  index = 0,
+} = Astro.props;
+
+const formattedDate = latestDate.toLocaleDateString(
+  "en-US",
+  { year: "numeric", month: "short" },
+);
+
+/**
+ * Map categories to gradient color pairs
+ * for visual differentiation.
+ */
+const categoryGradients: Record<
+  string,
+  [string, string]
+> = {
+  Healthcare: ["#10b981", "#059669"],
+  "Health & Medicine": ["#f43f5e", "#e11d48"],
+  "Health & Beauty": ["#ec4899", "#db2777"],
+  Health: ["#14b8a6", "#0d9488"],
+  "Personal Finance": ["#f59e0b", "#d97706"],
+  Finance: ["#eab308", "#ca8a04"],
+  "Finance & Investment": ["#f97316", "#ea580c"],
+  General: ["#6366f1", "#4f46e5"],
+};
+
+const [gradFrom, gradTo] =
+  categoryGradients[category] ?? ["#6366f1", "#4f46e5"];
+---
+
+<a
+  href={`/series/${slug}`}
+  id={`series-card-${slug}`}
+  class="group relative block glass-card overflow-hidden transition-all duration-300 hover:-translate-y-1.5 hover:shadow-card"
+  style={`animation-delay: ${index * 70}ms`}
+>
+  <!-- Gradient accent stripe (top) -->
+  <div
+    class="h-1 w-full"
+    style={`background: linear-gradient(90deg, ${gradFrom}, ${gradTo})`}
+  ></div>
+
+  <div class="p-6">
+    <!-- Meta row -->
+    <div class="flex items-center gap-2 mb-3">
+      <span
+        class="text-xs font-medium px-2 py-0.5 rounded-md"
+        style={`background: ${gradFrom}1a; color: ${gradFrom}`}
+      >
+        {category}
+      </span>
+      <span class="text-xs text-text-tertiary">
+        {formattedDate}
+      </span>
+    </div>
+
+    <!-- Title -->
+    <h3
+      class="text-lg font-semibold text-text-primary group-hover:text-accent-light transition-colors mb-2 line-clamp-2 leading-snug"
+    >
+      {title}
+    </h3>
+
+    <!-- Description -->
+    <p
+      class="text-sm text-text-secondary line-clamp-2 leading-relaxed mb-4"
+    >
+      {description}
+    </p>
+
+    <!-- Footer -->
+    <div
+      class="flex items-center justify-between pt-3 border-t border-border"
+    >
+      <div class="flex items-center gap-1.5">
+        <!-- Posts icon -->
+        <svg
+          class="w-4 h-4 text-text-tertiary"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+          />
+        </svg>
+        <span class="text-sm font-medium text-text-secondary">
+          {postCount} part{postCount !== 1 ? "s" : ""}
+        </span>
+      </div>
+
+      <!-- Arrow CTA -->
+      <span
+        class="text-sm text-accent-light opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1"
+      >
+        Explore
+        <svg
+          class="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M17 8l4 4m0 0l-4 4m4-4H3"
+          />
+        </svg>
+      </span>
+    </div>
+  </div>
+</a>
